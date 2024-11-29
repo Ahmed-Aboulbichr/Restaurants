@@ -11,7 +11,7 @@ internal class RestaurantDbContext : DbContext
     }
     internal DbSet<Restaurant> Restaurants { get; set; }
 
-    internal DbSet<Dish> Dishes;
+    internal DbSet<Dish> Dishes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
