@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Restaurants.Application.Services;
+using Restaurants.Domain.Entities;
 
 namespace Restaurants.API.Controllers;
 
@@ -12,7 +13,7 @@ public class RestaurantsController : ControllerBase
 
     public RestaurantsController(IRestaurantsService restaurantsService)
     {
-        this.restaurantsService= restaurantsService;
+        this.restaurantsService = restaurantsService;
     }
 
     [HttpGet]
@@ -20,6 +21,17 @@ public class RestaurantsController : ControllerBase
     {
         var restaurants = await restaurantsService.GetAll();
         return Ok(restaurants);
-        
+
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> Get([FromRoute] int id)
+    {
+        var restaurant = await restaurantsService.GetRestaurantById(id);
+        if(restaurant is null)
+        {
+            return NotFound();
+        }
+        return Ok(restaurant);
     }
 }
