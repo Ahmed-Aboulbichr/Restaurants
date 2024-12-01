@@ -13,6 +13,13 @@ internal class RestaurantsRepository : IRestaurantsRepository
         this.restaurantDbContext = restaurantDbContext;
     }
 
+    public async Task<int> Create(Restaurant restaurant)
+    {
+        await restaurantDbContext.AddAsync(restaurant);
+        await restaurantDbContext.SaveChangesAsync();
+        return restaurant.Id;
+    }
+
     public  async Task<IEnumerable<Restaurant>> GetAll()
     {
         var restaurants = await restaurantDbContext.Restaurants

@@ -6,4 +6,5 @@ public interface IRestaurantsRepository
 {
     Task<IEnumerable<Restaurant>> GetAll();
     Task<Restaurant?> GetRestaurantById(int id);
+    Task<int> Create(Restaurant restaurant);
 }
