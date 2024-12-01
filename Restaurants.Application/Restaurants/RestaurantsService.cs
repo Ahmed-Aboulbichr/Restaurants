@@ -2,7 +2,7 @@
 using Restaurants.Domain.Entities;
 using Restaurants.Domain.Respositories;
 
-namespace Restaurants.Application.Services;
+namespace Restaurants.Application.Restaurants;
 
 public class RestaurantsService : IRestaurantsService
 {

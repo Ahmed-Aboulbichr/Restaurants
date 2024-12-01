@@ -1,6 +1,6 @@
 ﻿using Restaurants.Domain.Entities;
 
-namespace Restaurants.Application.Services;
+namespace Restaurants.Application.Restaurants;
 
 public interface IRestaurantsService
 {
