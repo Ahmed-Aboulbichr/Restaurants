@@ -1,7 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Restaurants.Application.Restaurants;
 using Restaurants.Application.Restaurants.Commands.CreateRestaurant;
+using Restaurants.Application.Restaurants.Commands.DeleteRestaurant;
+using Restaurants.Application.Restaurants.Commands.UpdateRestaurant;
 using Restaurants.Application.Restaurants.Queries.GetAllRestaurants;
 using Restaurants.Application.Restaurants.Queries.GetRestaurantById;
 
@@ -30,7 +31,7 @@ public class RestaurantsController : ControllerBase
     public async Task<IActionResult> Get([FromRoute] int id)
     {
         var restaurant = await mediator.Send(new GetRestaurantByIdQuery(id));
-        if(restaurant is null)
+        if (restaurant is null)
         {
             return NotFound();
         }
@@ -41,6 +42,26 @@ public class RestaurantsController : ControllerBase
     public async Task<IActionResult> CreateRestaurant([FromBody] CreateRestaurantCommand createRestaurantDto)
     {
         int restaurantId = await mediator.Send(createRestaurantDto);
-        return CreatedAtAction(nameof(Get), new { id = restaurantId }, null) ;
+        return CreatedAtAction(nameof(Get), new { id = restaurantId }, null);
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteRestaurant([FromRoute] int id)
+    {
+        bool isDeleted = await mediator.Send(new DeleteRestaurantCommand(id));
+        if (isDeleted)
+        {
+            return NoContent();
+        }
+        return NotFound();
+    }
+
+    [HttpPatch("{id:int}")]
+    public async Task<IActionResult> UpdateRestaurant([FromRoute] int id, [FromBody] UpdateRestaurantCommand request)
+    {
+        request.Id = id;
+        bool isUpdated = await mediator.Send(request);
+        if (isUpdated) return NoContent();
+        return NotFound();
     }
 }
