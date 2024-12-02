@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Restaurants.Application.Restaurants;
-using Restaurants.Application.Restaurants.Dtos;
-using Restaurants.Domain.Entities;
+using Restaurants.Application.Restaurants.Commands.CreateRestaurant;
+using Restaurants.Application.Restaurants.Queries.GetAllRestaurants;
+using Restaurants.Application.Restaurants.Queries.GetRestaurantById;
 
 namespace Restaurants.API.Controllers;
 
@@ -9,18 +11,17 @@ namespace Restaurants.API.Controllers;
 [Route("api/[controller]")]
 public class RestaurantsController : ControllerBase
 {
+    private readonly IMediator mediator;
 
-    private readonly IRestaurantsService restaurantsService;
-
-    public RestaurantsController(IRestaurantsService restaurantsService)
+    public RestaurantsController(IMediator mediator)
     {
-        this.restaurantsService = restaurantsService;
+        this.mediator = mediator;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var restaurants = await restaurantsService.GetAll();
+        var restaurants = await mediator.Send(new GetAllRestaurantsQuery());
         return Ok(restaurants);
 
     }
@@ -28,7 +29,7 @@ public class RestaurantsController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get([FromRoute] int id)
     {
-        var restaurant = await restaurantsService.GetRestaurantById(id);
+        var restaurant = await mediator.Send(new GetRestaurantByIdQuery(id));
         if(restaurant is null)
         {
             return NotFound();
@@ -37,9 +38,9 @@ public class RestaurantsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateRestaurant([FromBody] CreateRestaurantDto createRestaurantDto)
+    public async Task<IActionResult> CreateRestaurant([FromBody] CreateRestaurantCommand createRestaurantDto)
     {
-        int restaurantId = await restaurantsService.CreateRestaurant(createRestaurantDto);
+        int restaurantId = await mediator.Send(createRestaurantDto);
         return CreatedAtAction(nameof(Get), new { id = restaurantId }, null) ;
     }
 }
