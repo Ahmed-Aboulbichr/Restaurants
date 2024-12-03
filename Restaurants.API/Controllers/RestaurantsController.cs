@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Restaurants.Application.Restaurants.Commands.CreateRestaurant;
 using Restaurants.Application.Restaurants.Commands.DeleteRestaurant;
 using Restaurants.Application.Restaurants.Commands.UpdateRestaurant;
+using Restaurants.Application.Restaurants.Dtos;
 using Restaurants.Application.Restaurants.Queries.GetAllRestaurants;
 using Restaurants.Application.Restaurants.Queries.GetRestaurantById;
 
@@ -20,7 +21,7 @@ public class RestaurantsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetAll()
     {
         var restaurants = await mediator.Send(new GetAllRestaurantsQuery());
         return Ok(restaurants);
@@ -28,7 +29,8 @@ public class RestaurantsController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> Get([FromRoute] int id)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RestaurantDto>> Get([FromRoute] int id)
     {
         var restaurant = await mediator.Send(new GetRestaurantByIdQuery(id));
         if (restaurant is null)
@@ -46,6 +48,8 @@ public class RestaurantsController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteRestaurant([FromRoute] int id)
     {
         bool isDeleted = await mediator.Send(new DeleteRestaurantCommand(id));
@@ -57,6 +61,8 @@ public class RestaurantsController : ControllerBase
     }
 
     [HttpPatch("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateRestaurant([FromRoute] int id, [FromBody] UpdateRestaurantCommand request)
     {
         request.Id = id;
