@@ -2,11 +2,12 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Restaurants.Application.Restaurants.Commands.DeleteRestaurant;
+using Restaurants.Domain.Exceptions;
 using Restaurants.Domain.Respositories;
 
 namespace Restaurants.Application.Restaurants.Commands.UpdateRestaurant;
 
-public class UpdateRestaurantCommandHandler : IRequestHandler<UpdateRestaurantCommand, bool>
+public class UpdateRestaurantCommandHandler : IRequestHandler<UpdateRestaurantCommand>
 {
 
     private readonly IRestaurantsRepository restaurantsRepository;
@@ -20,16 +21,15 @@ public class UpdateRestaurantCommandHandler : IRequestHandler<UpdateRestaurantCo
         this.logger = logger;
         this.mapper = mapper;
     }
-    public async Task<bool> Handle(UpdateRestaurantCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(UpdateRestaurantCommand request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Updating  restaurant {restaurantId} : {@UpdatedRestaurant}", request.Id, request);
-        var restaurant = await restaurantsRepository.GetRestaurantById(request.Id);
-        if (restaurant == null) return false;
-        
+        var restaurant = await restaurantsRepository.GetRestaurantById(request.Id) ??
+            throw new NotFoundException($"Restaurant", request.Id.ToString());
+
         mapper.Map(request, restaurant);
 
         await restaurantsRepository.SaveChanges();
-
-        return true;
+        return Unit.Value;
     }
 }

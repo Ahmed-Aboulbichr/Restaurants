@@ -1,4 +1,6 @@
-﻿namespace Restaurants.API.Middlewares;
+﻿using Restaurants.Domain.Exceptions;
+
+namespace Restaurants.API.Middlewares;
 
 public class ErrorHandlingMidlleware : IMiddleware
 {
@@ -13,7 +15,14 @@ public class ErrorHandlingMidlleware : IMiddleware
         try
         {
             await next.Invoke(context);
-        }catch(Exception ex) {
+        }
+        catch(NotFoundException notFound)
+        {
+            logger.LogWarning(notFound.Message);
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            await context.Response.WriteAsync(notFound.Message);
+        }
+        catch(Exception ex) {
             logger.LogError(ex, ex.Message);
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await context.Response.WriteAsync("Something went wrong");
